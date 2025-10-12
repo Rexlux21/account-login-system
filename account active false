@@ -1,0 +1,73 @@
+# Project: User Profile Creator 
+# Author: Pierre Ernest Augusma
+# Date: 2025-10-11
+# Description: This program collects user information and stores it in a dictionary.
+# Account Creation with active_account = False (Inactive account)
+
+print("Welcome to my GuestsApp! Please enter your information.")
+
+# Create an empty dictionary to store user profile information
+user_profile = {}
+
+# Collect user input and update the dictionary with key-value
+first_name = input("Enter your first name: ")
+user_profile["first_name"] = first_name  # this  Store  user first name 
+
+last_name = input("Enter your last name: ")
+user_profile["last_name"] = last_name  # this Store user last name
+
+username = input("Create a username: ")
+user_profile["username"] = username  # this Store username
+
+password = input("Create a password: ")
+user_profile["password"] = password  # this Store password
+
+dob = input("Enter your Date of Birth (YYYY-MM-DD): ")
+user_profile["dob"] = dob  # Store DOB of the user
+
+telephone = input("Enter your Telephone Number: ")
+user_profile["telephone"] = telephone  # Store telephone number of the user
+
+# Set account as inactive
+user_profile["active_account"] = False  # account is inactive
+
+# Print user profile data line by line
+print("\n--- User Profile ---")
+print("First Name:", user_profile["first_name"])
+print("Last Name:", user_profile["last_name"])
+print("Username:", user_profile["username"])
+print("DOB:", user_profile["dob"])
+print("Tel#:", user_profile["telephone"])
+print("Active Account:", user_profile["active_account"])
+
+# Ask the user if they want to login
+login_prompt = input("\nDo you want to attempt to login? (yes/Yes/Y/YES): ")
+
+# Convert input to lowercase and check if it's yes/y
+if login_prompt.lower() in ["yes", "y"]:
+    # Initialize attempt counter
+    attempts = 0
+
+    # Allow up to 3 login attempts
+    while attempts < 3:
+        input_username = input("Enter username: ")  # user input username
+        input_password = input("Enter password: ")  # user input password
+
+        # Check if username and password are correct
+        if (
+            input_username == user_profile["username"]
+            and input_password == user_profile["password"]
+        ):
+            # Credentials are correct, but account inactive
+            if user_profile["active_account"] is False:
+                print("Sorry, " + user_profile["first_name"] + ", your account is not active.")
+                break  # Exit login process
+        else:
+            # Credentials are incorrect
+            print("Username or password failed.")
+            attempts += 1  # Increment failed attempt counter
+
+        # After 3 failed attempts
+        if attempts == 3:
+            print("You have locked your account. Try again after 2 hours.")
+            break
