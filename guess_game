@@ -1,0 +1,98 @@
+# name: Pierre Ernest Augusma
+# date: 11/01/2025
+# Project: Guess_Game
+
+import random
+'''
+import random let us generate random number for the game
+we have a  welcome message ask for user name'''
+
+print("Welcome to the Guess the Number Game!")
+name = input("What is your name? ")
+
+''' Get range from user and write the logic for the range of the numbers in a loop
+users will choose start and end numbers for the game
+'''
+def get_number_range():
+    while True:
+        starting_input = input("What number should we start at? ")
+        ending_input = input("What number should we end at? ")
+
+        if not (starting_input.isdigit() and ending_input.isdigit()):
+            print("Please enter valid numbers.")
+            continue
+
+        starting_input = int(starting_input)
+        ending_input = int(ending_input)
+
+        if starting_input >= ending_input:
+            print("The starting number must be smaller than the ending number. Try again.")
+            continue
+
+        return starting_input, ending_input
+
+'''This section Determine difficulty based on range size
+and write the logic for it'''
+def determine_difficulty(starting_number, ending_number):
+    total_length = ending_number - starting_number
+    if total_length <= 50:
+        difficult = "easy"
+    elif total_length <= 75:
+        difficult = "medium"
+    else:
+        difficult = "hard"
+    print(f"Difficulty level: {difficult.capitalize()}")
+    return difficult
+
+''' This section Generate random number for the game'''
+def generate_random_number(start_input, end_input):
+    return random.randint(start_input, end_input)
+
+# The Main program start here 
+starting_number, ending_number = get_number_range()
+difficulty = determine_difficulty(starting_number, ending_number)
+random_number = generate_random_number(starting_number, ending_number)
+# random.randint will picks a random number including start and end number
+
+# Game settings for the user attempts
+max_attempts = 5
+attempts = 0
+
+print(f"I'm thinking of a number between {starting_number} and {ending_number}.")
+print(f"{name}, you have {max_attempts} attempts. Good luck! my friend")
+
+#  Main game loop
+'''
+this section start a loop that keep going until attempt run out
+and ask the user to pick the number
+'''
+while attempts < max_attempts:
+    guess_input = input(f"Attempt {attempts + 1}: Enter your guess : ")
+
+    # Validate input
+    if not guess_input.isdigit():
+        print("Please enter a valid number.")
+        continue
+
+    guess = int(guess_input)
+
+    # Check if guess is within range
+    if guess < starting_number or guess > ending_number:
+        print("That number is not in the range!")
+        continue
+
+    attempts += 1
+
+    # Correct guess
+    if guess == random_number:
+        print(f"Congratulations! You guessed the number {random_number} in {attempts} tries!")
+        break
+
+    # Too low or too high feedback
+    if guess < random_number:
+        print("Too low, try going higher.")
+    else:
+        print("Too high, try going lower.")
+
+if guess != random_number:
+    print(f"Sorry! You've used all {max_attempts} attempts. The number was {random_number}.")
