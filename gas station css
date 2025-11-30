@@ -1,0 +1,82 @@
+/* Basic reset */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background-color: #f5f5f5;
+}
+
+/* Header */
+header {
+    background-color: #2196f3;
+    color: white;
+    padding: 20px;
+}
+
+/* Headings */
+h1 {
+    font-size: 2.5em;
+    margin-top: 40px;
+    color: #333;
+}
+
+h2 {
+    font-size: 2em;
+    margin-top: 40px;
+    color: #444;
+}
+
+/* Paragraphs */
+p {
+    font-size: 1.2em;
+    color: #666;
+}
+
+/* Form styling */
+form#locatorForm {
+    margin: 20px 0;
+}
+
+form#locatorForm input {
+    padding: 10px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+form#locatorForm button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #2196f3;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+form#locatorForm button:hover {
+    background-color: #0d47a1;
+}
+
+/* Map placeholder */
+#map {
+    margin: 30px auto;
+    width: 80%;
+    height: 400px;
+    background-color: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #555;
+    border-radius: 10px;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    margin-top: 40px;
+}
