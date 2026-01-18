@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    h1 {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Testing button</h1>
+
+  <button onclick="fetchData()">Click me</button>
+
+  <script>
+    function fetchData() {
+      fetch("https://dummyjson.com/")
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // ✅ shows data in console
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  </script>
+</body>
+</html>
+
+
+
