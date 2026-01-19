@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Guitar Tabs Player 🎸</title>
+<style>
+body { background:#222; color:#fff; font-family:monospace; text-align:center; padding:20px;}
+.tab-string { white-space:pre; font-size:20px; line-height:1.5; margin:5px 0;}
+.note { color:#ff6347; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>Guitar Tabs Player 🎸</h1>
+<div id="tabs">
+<div id="string6" class="tab-string">E|----------------------------------------------------</div>
+<div id="string5" class="tab-string">A|----------------------------------------------------</div>
+<div id="string4" class="tab-string">D|----------------------------------------------------</div>
+<div id="string3" class="tab-string">G|----------------------------------------------------</div>
+<div id="string2" class="tab-string">B|----------------------------------------------------</div>
+<div id="string1" class="tab-string">e|----------------------------------------------------</div>
+</div>
+<button id="playBtn">Play Tabs</button>
+
+<script>
+// Tab sequence for "Twinkle Twinkle Little Star"
+const tabSequence = [
+  {string:1, fret:0, time:0},
+  {string:1, fret:0, time:500},
+  {string:2, fret:1, time:1000},
+  {string:2, fret:1, time:1500},
+  {string:3, fret:0, time:2000},
+  {string:3, fret:0, time:2500},
+  {string:2, fret:1, time:3000},
+  // add more for full song
+];
+
+const strings=["string6","string5","string4","string3","string2","string1"];
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+const openNotes=[82.41,110.00,146.83,196.00,246.94,329.63]; // EADGBE
+
+function playNote(frequency){
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.frequency.value=frequency;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0.2,audioCtx.currentTime);
+  osc.start();
+  osc.stop(audioCtx.currentTime+0.5);
+}
+
+document.getElementById("playBtn").addEventListener("click",()=>{
+  const startTime = performance.now();
+  tabSequence.forEach(note=>{
+    setTimeout(()=>{
+      const stringDiv = document.getElementById(strings[6-note.string]);
+      stringDiv.innerHTML = stringDiv.innerHTML.replace('-',`<span class="note">${note.fret}</span>`);
+      playNote(openNotes[note.string-1]*Math.pow(2,note.fret/12));
+    },note.time);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #87ceeb;
+      text-align: center;
+      padding: 50px;
+      color: #333;
+    }
+
+    h1 {
+      color: #fff;
+    }
+
+    input {
+      padding: 10px;
+      width: 200px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      background: #ff9800;
+      color: white;
+    }
+
+    button:hover {
+      background: #fb8c00;
+    }
+
+    .weather-box {
+      background: rgba(255,255,255,0.8);
+      max-width: 350px;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .weather-box img {
+      width: 100px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌤️ Weather App</h1>
+
+  <input type="text" id="cityInput" placeholder="Enter city name">
+  <button id="getWeatherBtn">Get Weather</button>
+
+  <div class="weather-box" id="weatherBox">
+    <h2 id="cityName"></h2>
+    <img id="weatherIcon" src="" alt="Weather Icon">
+    <p><strong>Temperature:</strong> <span id="temperature"></span> °C</p>
+    <p><strong>Description:</strong> <span id="description"></span></p>
+  </div>
+
+  <div class="error" id="errorMsg">City not found 😢</div>
+
+  <script>
+    const cityInput = document.getElementById("cityInput");
+    const btn = document.getElementById("getWeatherBtn");
+
+    const weatherBox = document.getElementById("weatherBox");
+    const cityName = document.getElementById("cityName");
+    const temperature = document.getElementById("temperature");
+    const description = document.getElementById("description");
+    const weatherIcon = document.getElementById("weatherIcon");
+    const errorMsg = document.getElementById("errorMsg");
+
+    btn.addEventListener("click", () => {
+      const city = cityInput.value.trim();
+      if (city === "") return;
+
+      weatherBox.style.display = "none";
+      errorMsg.style.display = "none";
+
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=YOUR_API_KEY&units=metric`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cod !== 200) {
+            throw new Error("City not found");
+          }
+
+          cityName.textContent = data.name + ", " + data.sys.country;
+          temperature.textContent = data.main.temp.toFixed(1);
+          description.textContent = data.weather[0].description;
+          weatherIcon.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+
+          weatherBox.style.display = "block";
+        })
+        .catch(err => {
+          errorMsg.style.display = "block";
+        });
+    });
+  </script>
+
+</body>
+</html>

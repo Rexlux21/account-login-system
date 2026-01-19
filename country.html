@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Country Info App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    input {
+      padding: 10px;
+      width: 250px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #2196F3;
+      color: white;
+    }
+
+    button:hover {
+      background: #1976D2;
+    }
+
+    .card {
+      background: white;
+      max-width: 400px;
+      margin: 25px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      display: none;
+    }
+
+    .card img {
+      width: 150px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌍 Country Info Finder</h1>
+
+  <input type="text" id="countryInput" placeholder="Enter country name">
+  <button id="searchBtn">Search</button>
+
+  <div class="card" id="resultCard">
+    <img id="flag" src="" alt="Flag">
+    <h2 id="name"></h2>
+    <p><strong>Capital:</strong> <span id="capital"></span></p>
+    <p><strong>Population:</strong> <span id="population"></span></p>
+    <p><strong>Region:</strong> <span id="region"></span></p>
+  </div>
+
+  <div class="error" id="errorMsg">Country not found 😢</div>
+
+  <script>
+    const input = document.getElementById("countryInput");
+    const btn = document.getElementById("searchBtn");
+
+    const card = document.getElementById("resultCard");
+    const flag = document.getElementById("flag");
+    const nameEl = document.getElementById("name");
+    const capitalEl = document.getElementById("capital");
+    const populationEl = document.getElementById("population");
+    const regionEl = document.getElementById("region");
+    const errorMsg = document.getElementById("errorMsg");
+
+    btn.addEventListener("click", () => {
+      const country = input.value.trim();
+
+      if (country === "") return;
+
+      card.style.display = "none";
+      errorMsg.style.display = "none";
+
+      fetch(`https://restcountries.com/v3.1/name/${country}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error("Country not found");
+          }
+          return res.json();
+        })
+        .then(data => {
+          const c = data[0];
+
+          flag.src = c.flags.png;
+          nameEl.textContent = c.name.common;
+          capitalEl.textContent = c.capital ? c.capital[0] : "N/A";
+          populationEl.textContent = c.population.toLocaleString();
+          regionEl.textContent = c.region;
+
+          card.style.display = "block";
+        })
+        .catch(err => {
+          errorMsg.style.display = "block";
+        });
+    });
+  </script>
+
+</body>
+</html>
