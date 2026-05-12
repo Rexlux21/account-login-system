@@ -1,0 +1,205 @@
+Here is the updated React component refactored to use Bootstrap 5 classes for a clean, TV-news-style weather broadcast dashboard.
+## 1. Install Bootstrap & Lucide Icons
+Ensure you have Bootstrap 5 installed in your React project directory:
+
+npm install axios bootstrap lucide-react
+
+Make sure to import the Bootstrap CSS at the top of your index.js or App.js entry file:
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+## 2. Bootstrap Weather Component (NewsWeatherForecast.jsx)
+
+import React, { useState } from 'react';
+import axios from 'axios';
+import { 
+  CloudRain, CloudSnow, Sun, Cloud, CloudLightning, 
+  Wind, MapPin, Compass
+} from 'lucide-react';
+
+const NewsWeatherForecast = () => {
+  const [zipCode, setZipCode] = useState('');
+  const [forecast, setForecast] = useState([]);
+  const [locationName, setLocationName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Maps NWS text descriptions to visual icons
+  const getWeatherIcon = (shortForecast) => {
+    const desc = shortForecast.toLowerCase();
+    if (desc.includes('thunderstorm') || desc.includes('t-storm')) return <CloudLightning className="text-warning" size={48} />;
+    if (desc.includes('rain') || desc.includes('shower')) return <CloudRain className="text-info" size={48} />;
+    if (desc.includes('snow') || desc.includes('ice') || desc.includes('blizzard')) return <CloudSnow className="text-light" size={48} />;
+    if (desc.includes('mostly cloudy') || desc.includes('partly sunny')) return <Cloud className="text-secondary" size={48} />;
+    if (desc.includes('cloudy')) return <Cloud className="text-muted" size={48} />;
+    return <Sun className="text-warning animate-spin-slow" size={48} />;
+  };
+
+  const fetchWeather = async (e) => {
+    e.preventDefault();
+    if (!/^\d{5}$/.test(zipCode)) {
+      setError('Please enter a valid 5-digit ZIP code.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setForecast([]);
+    setLocationName('');
+
+    try {
+      // Step 1: Geocode via Open-Meteo
+      const geoUrl = `open-meteo.com{zipCode}&count=1&language=en&format=json`;
+      const geoResponse = await axios.get(geoUrl);
+      
+      if (!geoResponse.data.results || geoResponse.data.results.length === 0) {
+        throw new Error('ZIP code not found.');
+      }
+
+      const { latitude, longitude, name, admin1 } = geoResponse.data.results[0];
+      setLocationName(`${name}, ${admin1}`);
+
+      // Step 2: Request NWS Metadata
+      const nwsPointsUrl = `weather.gov{latitude.toFixed(4)},${longitude.toFixed(4)}`;
+      const pointsResponse = await axios.get(nwsPointsUrl);
+      
+      // Step 3: Pull final timeline payload
+      const forecastUrl = pointsResponse.data.properties.forecast;
+      const forecastResponse = await axios.get(forecastUrl);
+
+      setForecast(forecastResponse.data.properties.periods);
+    } catch (err) {
+      setError(err.response?.data?.title || err.message || 'Network error fetching NWS data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const currentPeriod = forecast[0];
+  const extendedForecast = forecast.slice(1);
+
+  return (
+    <div className="bg-dark text-white min-vh-screen py-5 px-3 font-sans">
+      <div className="container" style={{ maxWidth: '1140px' }}>
+        
+        {/* TV News Style Header Ticker Banner */}
+        <header className="bg-secondary bg-opacity-25 p-4 rounded-top border-bottom border-warning border-4 shadow-sm d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+          <div>
+            <h1 className="h3 fw-black tracking-wider text-warning mb-0 d-flex align-items-center gap-2">
+              <Compass size={28} /> METRO WEATHER 24
+            </h1>
+            <small className="text-uppercase tracking-widest text-muted d-block mt-1" style={{ fontSize: '0.75rem' }}>
+              Live National Weather Service Data Feed
+            </small>
+          </div>
+          
+          <form onSubmit={fetchWeather} className="d-flex gap-2">
+            <div className="position-relative">
+              <MapPin className="position-absolute text-muted" size={16} style={{ left: '12px', top: '14px' }} />
+              <input
+                type="text"
+                maxLength="5"
+                placeholder="Enter ZIP code..."
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                className="form-control bg-dark border-secondary text-white fw-semibold py-2"
+                style={{ paddingLeft: '36px', width: '180px' }}
+              />
+            </div>
+            <button type="submit" className="btn btn-warning fw-bold text-dark text-uppercase tracking-wider px-4 shadow-sm">
+              Search
+            </button>
+          </form>
+        </header>
+
+        {/* Loading & Status States */}
+        {loading && (
+          <div className="bg-secondary bg-opacity-10 border-start border-end border-secondary p-5 text-center text-muted fs-5">
+            <div className="spinner-border text-warning me-2" role="status"></div>
+            Connecting to satellite servers...
+          </div>
+        )}
+        {error && (
+          <div className="alert alert-danger bg-danger bg-opacity-20 border-danger text-danger-emphasis rounded-0 rounded-bottom m-0 font-monospace" style={{ fontSize: '0.85rem' }}>
+            ⚠️ SYSTEM ERROR: {error}
+          </div>
+        )}
+
+        {/* Primary Main Interactive Interface */}
+        {currentPeriod && !loading && (
+          <main className="fade-in">
+            {/* LARGE HERO CARD: Current Conditions segment */}
+            <section className="bg-gradient-dark bg-opacity-50 border-start border-end border-secondary p-4 p-md-5 d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4 shadow">
+              <div className="space-y-2">
+                <span className="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 text-uppercase tracking-wider mb-2">
+                  Current Outlook
+                </span>
+                <h2 className="display-5 fw-extrabold text-white mb-2">
+                  {locationName}
+                </h2>
+                <p className="text-muted fw-medium mb-0" style={{ maxWidth: '600px' }}>{currentPeriod.detailedForecast}</p>
+              </div>
+
+              <div className="bg-black bg-opacity-50 border border-secondary border-opacity-50 rounded-4 p-4 d-flex align-items-center gap-4 shadow-inner w-100 w-lg-auto justify-content-between justify-content-lg-start" style={{ minWidth: '300px' }}>
+                <div className="p-3 bg-dark rounded-3 border border-secondary">
+                  {getWeatherIcon(currentPeriod.shortForecast)}
+                </div>
+                <div>
+                  <div className="display-4 fw-black text-white lh-1 position-relative">
+                    {currentPeriod.temperature}<span className="fs-3 text-warning fw-bold position-absolute" style={{ top: 0 }}>°{currentPeriod.temperatureUnit}</span>
+                  </div>
+                  <div className="text-uppercase tracking-wider fw-bold text-light mt-2 small">{currentPeriod.shortForecast}</div>
+                  <div className="small text-muted d-flex align-items-center gap-1 mt-1 fw-medium">
+                    <Wind size={14} /> {currentPeriod.windSpeed} {currentPeriod.windDirection}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* LOWER GRID: Extended Forecast Segments */}
+            <section className="bg-secondary bg-opacity-10 border-start border-end border-bottom border-secondary p-4 rounded-bottom shadow">
+              <h3 className="h6 fw-bold tracking-widest text-muted text-uppercase mb-4">
+                EXTENDED BROADCAST OUTLOOK
+              </h3>
+              
+              <div className="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                {extendedForecast.map((period) => (
+                  <div key={period.number} className="col">
+                    <div className="card h-100 bg-dark border-secondary border-opacity-50 p-3 text-center shadow-sm">
+                      <span className="small fw-bold tracking-wide text-light d-block text-truncate mb-2">{period.name}</span>
+                      
+                      <div className="my-2 p-2 bg-black bg-opacity-50 rounded border border-secondary d-flex justify-content-center">
+                        {getWeatherIcon(period.shortForecast)}
+                      </div>
+                      
+                      <div className="mt-2">
+                        <span className="fs-4 fw-black text-white">{period.temperature}°</span>
+                        <span className={`small fw-bold ms-1 text-uppercase ${period.isDaytime ? 'text-warning' : 'text-info'}`}>
+                          {period.temperatureUnit}
+                        </span>
+                        <p className="text-muted text-truncate-2 small mt-1 mb-0 lh-sm" style={{ fontSize: '0.75rem', height: '32px' }}>
+                          {period.shortForecast}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </main>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NewsWeatherForecast;
+
+## 3. Bootstrap 5 Architectural Fixes
+
+* Grid Alignment: Substituted Tailwind custom grids with Bootstrap’s semantic responsive row structures (row row-cols-2 row-cols-lg-6 g-3).
+* Theming Colors: Leveraged Contextual color properties (bg-dark, text-warning, border-secondary) to ensure dark high-contrast mode compliance.
+* Component Structures: Converted card layouts to use semantic sub-elements (card h-100 p-3) natively matching Bootstrap's padding structures.
+
+If you are missing the custom CSS utility to force clean multi-line truncation on the extended cards, let me know if you would like a raw CSS stylesheet or inline custom styles to bind the heights perfectly.
+
